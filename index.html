@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Find Out</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #0f0f0f;
+      font-family: 'Segoe UI', sans-serif;
+      overflow: hidden;
+    }
+
+    /* ── SCREEN 1 ── */
+    #screen-input {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 24px;
+      animation: fadeIn 0.8s ease;
+    }
+
+    #screen-input h1 {
+      color: #fff;
+      font-size: 1.6rem;
+      letter-spacing: 1px;
+    }
+
+    #nameInput {
+      padding: 14px 22px;
+      font-size: 1.1rem;
+      border: none;
+      border-radius: 50px;
+      outline: none;
+      width: 280px;
+      text-align: center;
+      background: #1e1e1e;
+      color: #fff;
+      border: 2px solid #444;
+      transition: border-color 0.3s;
+    }
+
+    #nameInput:focus { border-color: #e040fb; }
+
+    #submitBtn {
+      padding: 13px 40px;
+      font-size: 1rem;
+      font-weight: bold;
+      border: none;
+      border-radius: 50px;
+      cursor: pointer;
+      background: linear-gradient(135deg, #e040fb, #ff4081, #ff6d00, #ffea00, #00e676, #00b0ff);
+      background-size: 300%;
+      color: #fff;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.4);
+      animation: gradientShift 4s linear infinite;
+      transition: transform 0.2s;
+    }
+
+    #submitBtn:hover { transform: scale(1.06); }
+
+    /* ── SCREEN 2 ── */
+    #screen-result {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      gap: 28px;
+      animation: fadeIn 0.9s ease;
+      padding: 30px;
+      text-align: center;
+    }
+
+    #result-photo {
+      width: 260px;
+      height: 260px;
+      object-fit: cover;
+      border-radius: 20px;
+      border: 4px solid transparent;
+      background: linear-gradient(#0f0f0f, #0f0f0f) padding-box,
+                  linear-gradient(135deg, #e040fb, #ff4081, #ff6d00, #ffea00, #00e676, #00b0ff) border-box;
+      box-shadow: 0 0 40px rgba(224, 64, 251, 0.4);
+    }
+
+    #congrats-text {
+      font-size: 2.2rem;
+      font-weight: 900;
+      background: linear-gradient(90deg, #e040fb, #ff4081, #ff6d00, #ffea00, #00e676, #00b0ff);
+      background-size: 300%;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      animation: gradientShift 3s linear infinite;
+    }
+
+    #result-name {
+      color: #ffffff99;
+      font-size: 1rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+
+    #backBtn {
+      margin-top: 8px;
+      padding: 10px 30px;
+      font-size: 0.9rem;
+      border: 2px solid #444;
+      border-radius: 50px;
+      background: transparent;
+      color: #aaa;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    #backBtn:hover { border-color: #e040fb; color: #fff; }
+
+    /* ── ANIMATIONS ── */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes gradientShift {
+      0%   { background-position: 0%; }
+      100% { background-position: 300%; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Screen 1: Name Input -->
+  <div id="screen-input">
+    <h1>🏳️‍🌈 তোমার নাম লেখো</h1>
+    <input id="nameInput" type="text" placeholder="নাম লেখো..." autocomplete="off" />
+    <button id="submitBtn" onclick="reveal()">জানতে চাই →</button>
+  </div>
+
+  <!-- Screen 2: Result -->
+  <div id="screen-result">
+    <img id="result-photo" src="" alt="photo" />
+    <div id="congrats-text">শুভেচ্ছা আপনি GAY 🏳️‍🌈</div>
+    <div id="result-name"></div>
+    <button id="backBtn" onclick="goBack()">← আবার চেষ্টা করো</button>
+  </div>
+
+  <script>
+    const extensions = ['jpg', 'jpeg', 'png', 'webp'];
+
+    function reveal() {
+      const raw = document.getElementById('nameInput').value.trim();
+      if (!raw) return;
+
+      const name = raw.toLowerCase();
+      const img  = document.getElementById('result-photo');
+
+      document.getElementById('result-name').textContent = raw;
+
+      // Try each extension in order; fallback to default
+      let i = 0;
+      img.onerror = function () {
+        if (i < extensions.length) {
+          img.src = `photos/${name}.${extensions[i++]}`;
+        } else {
+          img.onerror = null;
+          img.src = 'photos/default.jpg';
+        }
+      };
+      // Kick off first attempt
+      img.src = `photos/${name}.${extensions[i++]}`;
+
+      // Swap screens
+      document.getElementById('screen-input').style.display  = 'none';
+      document.getElementById('screen-result').style.display = 'flex';
+    }
+
+    function goBack() {
+      document.getElementById('screen-result').style.display = 'none';
+      document.getElementById('screen-input').style.display  = 'flex';
+      document.getElementById('nameInput').value = '';
+    }
+
+    // Allow Enter key on input
+    document.getElementById('nameInput')
+      .addEventListener('keydown', e => { if (e.key === 'Enter') reveal(); });
+  </script>
+
+</body>
+</html>
